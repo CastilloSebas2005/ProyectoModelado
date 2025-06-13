@@ -12,6 +12,8 @@ parser = argparse.ArgumentParser(description="Simulación de procesamiento de me
 parser.add_argument("--duration", type=int, default=100, help="Duración de la simulación en segundos.")
 parser.add_argument("--slow", action="store_true", help="Activar modo lento para ver los mensajes.")
 parser.add_argument("--sleeptime", type=float, default=1, help="Tiempo de espera entre mensajes (en segundos) en modo lento.")
+parser.add_argument('--runs', type=int, default=1, help='Cantidad de veces que se corre la simulación')
+
 
 args = parser.parse_args()
 
@@ -38,6 +40,7 @@ class Computer_1:
         self.env = env
         self.slowMode = slowMode
         self.sleep = sleepTime
+        self.workTime = 0
         self.resource = simpy.Resource(env, capacity=capacity)
         self.id = Computer.COMPUTER_1
         self.sendMessages = 0
@@ -66,6 +69,9 @@ class Computer_1:
             # Se "detiene" la ejecución durante "processingTime" segundos.
             yield self.env.timeout(processingTime)
             print(f'[{self.env.now:.2f} s] La Computadora 1 procesó el mensaje con ID {message.ID} durante {processingTime:.2f} s')
+            self.workTime += processingTime
+            total_work_time = self.env.simulador.comp_1.workTime + self.env.simulador.comp_2.workTime + self.env.simulador.comp_3.workTime
+            print(f"[{self.env.now:.2f} s] Tiempo total trabajado por los tres procesadores hasta el momento: {total_work_time:.2f} segundos")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             returnProb = random.uniform(0, 1)
             sendToDestiny = False
@@ -99,6 +105,7 @@ class Computer_2:
         self.env = env
         self.slowMode = slowMode
         self.sleep = sleepTime
+        self.workTime = 0
         self.resource = simpy.Resource(env, capacity=capacity)
         self.id = Computer.COMPUTER_2
         self.countMessages = 0
@@ -133,6 +140,9 @@ class Computer_2:
             # Se "detiene" la ejecución durante "processingTime" segundos.
             yield self.env.timeout(processingTime)
             print(f"[{self.env.now:.2f} s] La Computadora 2 {'reprocesó' if reprocess else 'procesó'} el mensaje con ID {message.ID} durante {processingTime:.2f} s")
+            self.workTime += processingTime
+            total_work_time = self.env.simulador.comp_1.workTime + self.env.simulador.comp_2.workTime + self.env.simulador.comp_3.workTime
+            print(f"[{self.env.now:.2f} s] Tiempo total trabajado por los tres procesadores hasta el momento: {total_work_time:.2f} segundos")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             # Se envía a la computadora 1
             # Notar que se llama como un "proceso de SimPy" para que se pueda usar `yield`
@@ -145,6 +155,7 @@ class Computer_3:
         self.env = env
         self.slowMode = slowMode
         self.sleep = sleepTime
+        self.workTime = 0
         self.resource = simpy.Resource(env, capacity=capacity)
         self.id = Computer.COMPUTER_3
         self.countMessages = 0
@@ -178,10 +189,14 @@ class Computer_3:
             # Se "detiene" la ejecución durante "processingTime" segundos.
             yield self.env.timeout(processingTime)
             print(f"[{self.env.now:.2f} s] La Computadora 3 {'reprocesó' if reprocess else 'procesó'} el mensaje con ID {message.ID} durante {processingTime:.2f} s")
+            self.workTime += processingTime
+            total_work_time = self.env.simulador.comp_1.workTime + self.env.simulador.comp_2.workTime + self.env.simulador.comp_3.workTime
+            print(f"[{self.env.now:.2f} s] Tiempo total trabajado por los tres procesadores hasta el momento: {total_work_time:.2f} segundos")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             # "Se da el caso de que en promedio, el 75% de todos los mensajes
             #  que llegan son rechazados totalmente"
             rejectionProb = random.uniform(0, 1)
+            
             if rejectionProb <= 0.75:
                 print(f"[{self.env.now:.2f} s] La Computadora 3 rechazó el mensaje con ID {message.ID}")
                 if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
@@ -210,13 +225,13 @@ class Computer_3:
         return (98 * uniformValue + 27) ** (1/3)
 
 class Simulation:
-    def __init__(self, duration, slowMode=False, sleedpTime=1):
+    def __init__(self, duration, slowMode=False, sleepTime=1):
         # Inicializar el ambiente de SimPy
         self.env = simpy.Environment()
         # para que la simulación sea accesible desde el `env` de SimPy
         self.env.simulador = self
         self.slowMode = slowMode
-        self.sleep = sleedpTime
+        self.sleep = sleepTime
         self.comp_1 = Computer_1(self.env, 1, self.slowMode, self.sleep)
         self.comp_2 = Computer_2(self.env, 1, self.slowMode, self.sleep)
         self.comp_3 = Computer_3(self.env, 1, self.slowMode, self.sleep)
@@ -232,5 +247,7 @@ class Simulation:
         print(f'[{self.env.now:.2f} s] Simulación finalizada')
         print("-------------------------------")
 
-simulation = Simulation(args.duration, slowMode=args.slow)
-simulation.start()
+for i in range(args.runs):
+    print(f"\n============================ EJECUCIÓN #{i+1} ============================\n")
+    simulation = Simulation(args.duration, slowMode=args.slow, sleepTime=args.sleeptime)
+    simulation.start()
