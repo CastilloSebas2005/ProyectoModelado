@@ -9,9 +9,9 @@ import argparse
 
 # Parseo de argumentos
 parser = argparse.ArgumentParser(description="Simulación de procesamiento de mensajes entre computadoras.")
-parser.add_argument("--duration", type=int, default=50, help="Duración de la simulación en segundos.")
+parser.add_argument("--duration", type=int, default=100, help="Duración de la simulación en segundos.")
 parser.add_argument("--slow", action="store_true", help="Activar modo lento para ver los mensajes.")
-parser.add_argument("--sleeptime", type=float, default=0.5, help="Tiempo de espera entre mensajes (en segundos) en modo lento.")
+parser.add_argument("--sleeptime", type=float, default=1, help="Tiempo de espera entre mensajes (en segundos) en modo lento.")
 
 args = parser.parse_args()
 
