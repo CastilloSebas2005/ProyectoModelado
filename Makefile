@@ -1,7 +1,8 @@
-.PHONY: run clean
-
 run: 
 	python3 source/simulation/main.py
+
+runSlow:
+	python3 source/simulation/main.py --duration 50 --slow --sleeptime 0.5 --runs 2
 
 clean:
 	find . -type f -name '*.pyc' -delete
@@ -11,5 +12,8 @@ install:
 ifeq ($(shell uname),Linux)
 	sudo apt update
 	sudo apt install -y python3-simpy3
-endif
+	sudo apt install -y python3-numpy
+	sudo apt install -y python3-scipy
+else #for windows or other O.S
 	pip3 install -r requirements.txt
+endif
