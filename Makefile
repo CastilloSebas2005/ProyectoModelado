@@ -15,5 +15,5 @@ ifeq ($(shell uname),Linux)
 	sudo apt install -y python3-numpy
 	sudo apt install -y python3-scipy
 else #for windows or other O.S
-	pip3 install -r requirements.txt
+	pip3 install -r source/requirements.txt
 endif

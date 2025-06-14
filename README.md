@@ -20,6 +20,8 @@ make install
 
 ```
 
+#### Linux
+
 También puede instalar las mismas manualmente:
 
 ``` bash
@@ -27,6 +29,23 @@ También puede instalar las mismas manualmente:
 sudo apt install python3-simpy3
 sudo apt install python3-numpy
 sudo apt install python3-scipy
+
+```
+
+#### Windows
+
+``` bash
+pip3 install -r source/requirements.txt
+
+```
+
+o intalar manualmente uno por uno:
+
+``` bash
+
+pip3 install simpy (a veces este falla y se debe usar simpy3)
+pip3 install numpy
+pip3 install scipy
 
 ```
 
@@ -70,5 +89,7 @@ python3 <rutaAlArchivo>/main.py --duration 50 --slow --sleeptime 0.5 --runs 2
 
 ```
 
+#### Nota
 
-### 
+También puede usar un IDE como vscode y presionar el botón
+
