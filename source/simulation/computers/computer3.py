@@ -22,6 +22,10 @@ class Computer_3:
             # TODO: acomodar el monitoreo de la cola en un mejor lugar
             print(f'[{self.env.now:.2f} s] Cola de espera en Computadora 3: {len(self.resource.queue)} mensajes') #delete
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
+            #guardar tiempo de llegada
+            message = Message(self.id)
+            message.arrivalTime = self.env.now
+
             # Tiempo entre arribos
             yield (self.env.timeout(self.getArrivalTime()))
             message = Message(self.id)
@@ -33,15 +37,21 @@ class Computer_3:
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             self.env.process(self.processMessage(message))
     def processMessage(self, message, reprocess = False):
+        queueStart = self.env.now
         with self.resource.request() as request:
             yield request
+            queueTime = self.env.now - queueStart
+            message.queueTimes["Computer3"] += queueTime
             print(f"[{self.env.now:.2f} s] La Computadora 3 comenzó a {'reprocesar' if reprocess else 'procesar'} el mensaje con ID {message.ID}")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             # TODO: implementar tiempo de procesamiento, por mientras estoy usando el de la computadora 3
             processingTime = self.getProcessingTime()
             message.timeWaiting = processingTime
             # Se "detiene" la ejecución durante "processingTime" segundos.
+            processingStart = self.env.now
             yield self.env.timeout(processingTime)
+            processingFinishTime = self.env.now - processingStart
+            message.processingTimes["Computer3"] += processingFinishTime
             print(f"[{self.env.now:.2f} s] La Computadora 3 {'reprocesó' if reprocess else 'procesó'} el mensaje con ID {message.ID} durante {processingTime:.2f} s")
             self.workTime += processingTime
             total_work_time = self.env.simulador.comp_1.workTime + self.env.simulador.comp_2.workTime + self.env.simulador.comp_3.workTime
@@ -52,6 +62,9 @@ class Computer_3:
             rejectionProb = random.uniform(0, 1)
             
             if rejectionProb <= 0.75:
+                message.departureTime = self.env.now
+                message.finalStatus = "rejected"
+                self.env.simulador.record_message(message)
                 print(f"[{self.env.now:.2f} s] La Computadora 3 rechazó el mensaje con ID {message.ID}")
                 if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
                 self.deniedMessages += 1

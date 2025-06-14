@@ -12,4 +12,9 @@ class Message:
         self.ID = next(self._id_generator)
         self.origin = origin
         self.timeWaiting = 0
+        self.arrivalTime = 0
+        self.departureTime = 0
+        self.queueTimes = { "Computer1": 0, "Computer2": 0, "Computer3": 0 }
+        self.processingTimes = {"Computer1": 0, "Computer2": 0, "Computer3": 0}
+        self.finalStatus = None
 
