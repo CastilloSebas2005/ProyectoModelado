@@ -79,6 +79,18 @@ make runCustom DURATION=10000 SLOW=false RUNS=1 MONITOR=true INTERVAL=1
 
 ```
 
+Donde:
+
+- `DURATION` es la duración de la simulación en segundos.
+
+- `SLOW` define si se activa el modo lento (true o false).
+
+- `RUNS` define cuántas repeticiones de la simulación se correrá.
+
+- `MONITOR` activa o desactiva el monitoreo del sistema (imprime el estado de las computadoras y las colas).
+
+- `INTERVAL` indica cada cuánto tiempo se debe imprimir en consola el resultado del monitoreo. 
+
 
 #### Desde la terminal
 
