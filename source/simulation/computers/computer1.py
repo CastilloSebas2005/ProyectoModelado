@@ -63,6 +63,9 @@ class Computer_1:
                   sendToDestiny = True
             if sendToDestiny:
               self.sendMessages += 1
+              message.departureTime = self.env.now
+              message.finalStatus = "sent"
+              self.env.simulador.record_message(message)
               print(f'[{self.env.now:.2f} s] La Computadora 1 envió al destino el mensaje con ID {message.ID} proviniente de la computadora {message.origin.value}')
               if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
               print(f'[{self.env.now:.2f} s] La Computadora 1 ha enviado {self.sendMessages} mensajes hasta este momento.')

@@ -10,12 +10,12 @@ def main():
 
 
     args = parser.parse_args()
+    simulation = Simulation(args.duration, slowMode=args.slow, sleepTime=args.sleeptime)
 
     for i in range(args.runs):
         print(f"\n============================ EJECUCIÓN #{i+1} ============================\n")
-        simulation = Simulation(args.duration, slowMode=args.slow, sleepTime=args.sleeptime)
         simulation.start()
-
+    simulation.showStats()
 if __name__ == "__main__":
     main()
 
