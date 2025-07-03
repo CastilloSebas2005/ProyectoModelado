@@ -71,6 +71,15 @@ make runSlow
 
 ```
 
+Para una ejecución más personalizada indicando las duraciones y repeticiones 
+
+``` bash
+
+make runCustom DURATION=10000 SLOW=false RUNS=1 MONITOR=true INTERVAL=1
+
+```
+
+
 #### Desde la terminal
 
 Para ejecutar normalmente

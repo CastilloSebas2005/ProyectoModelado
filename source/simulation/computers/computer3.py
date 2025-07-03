@@ -19,8 +19,6 @@ class Computer_3:
     # Método que simula el proceso de recibir un mensaje desde el "exterior del sistema"
     def receiveMessages(self):
          while True:
-            # TODO: acomodar el monitoreo de la cola en un mejor lugar
-            print(f'[{self.env.now:.2f} s] Cola de espera en Computadora 3: {len(self.resource.queue)} mensajes') #delete
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             #guardar tiempo de llegada
             message = Message(self.id)
@@ -29,20 +27,21 @@ class Computer_3:
             # Tiempo entre arribos
             yield (self.env.timeout(self.getArrivalTime()))
             message = Message(self.id)
-            print(f"[{self.env.now:.2f} s] La Computadora 3 recibió el mensaje con ID {message.ID} desde el exterior del sistema")
+            print(f"[{self.env.now:.2f} s][Evento] La Computadora 3 recibió el mensaje con ID {message.ID} desde el exterior del sistema")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             # Se incrementa el contador de mensajes
             self.countMessages += 1
-            print(f"[{self.env.now:.2f} s] La Computadora 3 ha recibido {self.countMessages} mensajes hasta este momento.")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             self.env.process(self.processMessage(message))
     def processMessage(self, message, reprocess = False):
         queueStart = self.env.now
         with self.resource.request() as request:
             yield request
+            # Se le notifica a la simulación que se empezó a procesar el mensaje
+            self.env.simulador.notifyStart()
             queueTime = self.env.now - queueStart
             message.queueTimes["Computer3"] += queueTime
-            print(f"[{self.env.now:.2f} s] La Computadora 3 comenzó a {'reprocesar' if reprocess else 'procesar'} el mensaje con ID {message.ID}")
+            print(f"[{self.env.now:.2f} s][Evento] La Computadora 3 comenzó a {'reprocesar' if reprocess else 'procesar'} el mensaje con ID {message.ID}")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             # TODO: implementar tiempo de procesamiento, por mientras estoy usando el de la computadora 3
             processingTime = self.getProcessingTime()
@@ -52,10 +51,8 @@ class Computer_3:
             yield self.env.timeout(processingTime)
             processingFinishTime = self.env.now - processingStart
             message.processingTimes["Computer3"] += processingFinishTime
-            print(f"[{self.env.now:.2f} s] La Computadora 3 {'reprocesó' if reprocess else 'procesó'} el mensaje con ID {message.ID} durante {processingTime:.2f} s")
+            print(f"[{self.env.now:.2f} s][Evento] La Computadora 3 {'reprocesó' if reprocess else 'procesó'} el mensaje con ID {message.ID} durante {processingTime:.2f} s")
             self.workTime += processingTime
-            total_work_time = self.env.simulador.comp_1.workTime + self.env.simulador.comp_2.workTime + self.env.simulador.comp_3.workTime
-            print(f"[{self.env.now:.2f} s] Tiempo total trabajado por los tres procesadores hasta el momento: {total_work_time:.2f} segundos")
             if(self.slowMode): time.sleep(self.sleep)  # Simula un retraso en el procesamiento si slowMode es True
             # "Se da el caso de que en promedio, el 75% de todos los mensajes
             #  que llegan son rechazados totalmente"
@@ -74,6 +71,8 @@ class Computer_3:
               # Se envía a la computadora 1
               # Notar que se llama como un "proceso de SimPy" para que se pueda usar `yield`
               self.env.process(self.env.simulador.comp_1.processMessage(message))
+                        # Se le notifica a la simulación que se terminó de procesar el mensaje
+            self.env.simulador.notifyEnd()
     def getArrivalTime(self):
         #if x <= 4:
           #f(x) = ((x/8) - 1/4)
