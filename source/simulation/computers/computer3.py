@@ -4,17 +4,55 @@ import time
 from message import *
 
 class Computer_3:
+    """
+    Clase que representa a la Computadora 3 del sistema.
+
+    Esta computadora recibe mensajes desde el exterior del sistema siguiendo una distribución 
+    triangular de tiempo entre arribos (mínimo 2 s, máximo 10 s, moda 4 s). Procesa cada mensaje 
+    con un tiempo determinado por una función cúbica invertida, y luego:
+
+    - Rechaza el mensaje con una probabilidad del 75% (no continúa el proceso).
+    - Si no lo rechaza, lo envía a la Computadora 1.
+    
+    También puede reprocesar mensajes que hayan sido devueltos desde la Computadora 1.
+
+    Atributos:
+    ----------
+    env : simpy.Environment
+        Entorno de simulación utilizado para manejar eventos y tiempos.
+    
+    slowMode : bool
+        Si está activado, añade pausas visibles (`sleep`) para observar el proceso paso a paso.
+    
+    sleep : float
+        Tiempo de espera entre eventos si `slowMode` está activado.
+    
+    workTime : float
+        Tiempo acumulado que la computadora ha pasado procesando mensajes.
+    
+    resource : simpy.Resource
+        Recurso de SimPy que representa la capacidad de procesamiento concurrente de la computadora.
+    
+    id : int
+        Identificador único de la computadora (en este caso, COMPUTER_3).
+    
+    countMessages : int
+        Contador de mensajes que esta computadora ha recibido.
+    
+    deniedMessages : int
+        Contador de mensajes rechazados por esta computadora.
+    """
     # Constructor
     def __init__(self, env, capacity=1, slowMode=False, sleepTime=1):
-        self.env = env
-        self.slowMode = slowMode
-        self.sleep = sleepTime
-        self.workTime = 0
-        self.resource = simpy.Resource(env, capacity=capacity)
-        self.id = Computer.COMPUTER_3
-        self.countMessages = 0
-        self.deniedMessages = 0
-        self.env.process(self.receiveMessages())
+        self.env = env                                # Entorno de simulación
+        self.slowMode = slowMode                      # Modo lento (con pausas)
+        self.sleep = sleepTime                        # Tiempo de espera artificial si slowMode
+        self.workTime = 0                             # Tiempo acumulado trabajando
+        self.resource = simpy.Resource(env, capacity=capacity)  # Recurso SimPy para exclusión mutua
+        self.id = Computer.COMPUTER_3                 # ID de la computadora
+        self.countMessages = 0                        # Mensajes recibidos
+        self.deniedMessages = 0                       # Mensajes rechazados
+        self.env.process(self.receiveMessages())      # Proceso SimPy que inicia la recepción de mensajes
 
     # Método que simula el proceso de recibir un mensaje desde el "exterior del sistema"
     def receiveMessages(self):

@@ -4,16 +4,50 @@ import time
 from message import *
 
 class Computer_2:
+    """
+    Clase que representa a la Computadora 2 del sistema.
+
+    Esta computadora recibe mensajes directamente desde el exterior del sistema con un
+    tiempo entre arribos distribuido exponencialmente (media de 15 segundos).
+
+    Procesa los mensajes con un tiempo uniforme entre 5 y 10 segundos y los envía a la
+    Computadora 1 para su procesamiento final.
+    
+    También puede recibir mensajes devueltos desde la Computadora 1 para ser reprocesados.
+
+    Atributos:
+    ----------
+    env : simpy.Environment
+        Entorno de simulación utilizado para manejar eventos y tiempos.
+    
+    slowMode : bool
+        Si está activado, añade pausas visibles (`sleep`) para observar el proceso paso a paso.
+    
+    sleep : float
+        Tiempo de espera entre eventos si `slowMode` está activado.
+    
+    workTime : float
+        Tiempo acumulado que la computadora ha pasado procesando mensajes.
+    
+    resource : simpy.Resource
+        Recurso de SimPy que representa la capacidad de procesamiento concurrente de la computadora.
+    
+    id : int
+        Identificador único de la computadora (en este caso, COMPUTER_2).
+    
+    countMessages : int
+        Contador de mensajes que esta computadora ha recibido.
+    """
     # Constructor
     def __init__(self, env, capacity=1, slowMode=False, sleepTime=1):
-        self.env = env
-        self.slowMode = slowMode
-        self.sleep = sleepTime
-        self.workTime = 0
-        self.resource = simpy.Resource(env, capacity=capacity)
-        self.id = Computer.COMPUTER_2
-        self.countMessages = 0
-        self.env.process(self.receiveMessages())
+        self.env = env                            # Entorno de simulación de SimPy
+        self.slowMode = slowMode                  # Activa el modo lento (pausas visibles)
+        self.sleep = sleepTime                    # Tiempo de espera entre acciones si slowMode está activo
+        self.workTime = 0                         # Tiempo total que la computadora ha estado procesando
+        self.resource = simpy.Resource(env, capacity=capacity)  # Recurso compartido que simula la CPU
+        self.id = Computer.COMPUTER_2             # Identificador de esta computadora
+        self.countMessages = 0                    # Contador de mensajes recibidos
+        self.env.process(self.receiveMessages())  # Se inicia el proceso de recepción de mensajes
 
     # Método que simula el proceso de recibir un mensaje desde el "exterior del sistema"
     def receiveMessages(self):
